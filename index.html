@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D Модель - Реактор РИТМ-200Н</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        model-viewer {
+            width: 100%;
+            height: 100vh;
+            background-color: #111122;
+        }
+    </style>
+</head>
+<body>
+    <!-- Подключаем библиотеку model-viewer -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+
+    <!-- Тег model-viewer. Здесь мы указываем все настройки -->
+    <model-viewer 
+        src="model.glb" 
+        alt="3D модель реактора РИТМ-200Н" 
+        ar 
+        ar-modes="webxr scene-viewer quick-look" 
+        camera-controls 
+        autoplay 
+        rotation-per-second="30deg"
+        environment-image="neutral"
+        style="background-color: #111122;"
+        ar-scale="auto">
+    </model-viewer>
+</body>
+</html>
