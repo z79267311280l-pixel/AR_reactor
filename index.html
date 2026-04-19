@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-    <title>АСММ: реактор РИТМ-200Н в 3D и AR</title>
+    <title>АСММ: реактор РИТМ-200Н в AR</title>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
         body {
@@ -46,7 +46,7 @@
         ar-modes="scene-viewer webxr quick-look"
         camera-controls 
         touch-action="pan-y"
-        scale="1 1 1"
+        scale="0.5 0.5 0.5"
         autoplay
         shadow-intensity="0.5"
         exposure="1.2"
@@ -60,9 +60,8 @@
     <script>
         const viewer = document.getElementById('reactor-viewer');
         viewer.addEventListener('load', () => {
-            console.log('Модель успешно загружена с GitHub');
-            // Если модель слишком большая, раскомментируйте и подберите масштаб:
-            // viewer.scale = '0.5 0.5 0.5';
+            console.log('Модель загружена');
+            // При необходимости уменьшите масштаб ещё сильнее, изменив значение scale в теге model-viewer.
         });
         viewer.addEventListener('error', (err) => {
             console.error('Ошибка загрузки модели:', err);
