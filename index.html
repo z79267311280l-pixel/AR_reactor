@@ -3,43 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-    <title>3D модель реактора РИТМ-200Н</title>
+    <title>Реактор РИТМ-200Н — 3D и AR</title>
+    <!-- Подключаем model-viewer -->
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            font-family: system-ui, 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         model-viewer {
             width: 100%;
             height: 100vh;
             background-color: #111;
         }
-        .controls-info {
-            position: absolute;
+        /* Кастомная кнопка AR — по центру экрана */
+        .ar-button {
+            position: fixed;
+            bottom: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            padding: 16px 32px;
+            border-radius: 60px;
+            cursor: pointer;
+            z-index: 20;
+            text-align: center;
+            letter-spacing: 2px;
+            transition: 0.2s;
+            font-family: monospace;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        .ar-button:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translate(-50%, -50%) scale(1.02);
+        }
+        /* Информационная панель внизу */
+        .info {
+            position: fixed;
             bottom: 20px;
             left: 0;
             right: 0;
             text-align: center;
             background: rgba(0,0,0,0.65);
-            color: #eee;
+            color: #ddd;
             padding: 10px;
             font-size: 14px;
             pointer-events: none;
             z-index: 10;
-            backdrop-filter: blur(8px);
-            border-radius: 12px;
+            backdrop-filter: blur(5px);
             margin: 0 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .controls-info a {
-            color: #88ddff;
-            pointer-events: auto;
-            text-decoration: none;
+            border-radius: 12px;
         }
         @media (max-width: 600px) {
-            .controls-info { font-size: 12px; bottom: 10px; }
+            .ar-button { font-size: 22px; padding: 12px 24px; bottom: 45%; }
+            .info { font-size: 11px; }
         }
     </style>
 </head>
@@ -47,34 +70,63 @@
     <model-viewer 
         id="reactor-viewer"
         src="model.glb"
-        alt="Реактор РИТМ-200Н"
+        alt="3D модель реактора РИТМ-200Н"
         camera-controls 
         touch-action="pan-y"
         scale="0.05 0.05 0.05"
         min-scale="0.01"
         max-scale="10"
-        interaction-prompt="auto"
         environment-image="neutral"
         exposure="1.2"
         shadow-intensity="0.5"
         style="background-color: #1a1a2e;">
     </model-viewer>
-    <div class="controls-info">
-        🖱️ <strong>Управление:</strong> вращайте пальцем (или мышью) | 📏 масштабируйте двумя пальцами (pinch) или колесиком мыши<br>
-        ✨ <strong>AR-режим:</strong> если на модели появится значок 📱 — нажмите его, чтобы разместить модель в реальном мире.<br>
-        <span style="font-size: 12px;">⚙️ Если модель слишком мала/велика, используйте масштабирование жестами.</span>
+
+    <!-- Кастомная кнопка AR -->
+    <div class="ar-button" id="arButton">
+        🔍 AR
     </div>
+
+    <div class="info">
+        🖱️ Вращайте модель пальцем (или мышью) | 📏 Масштабируйте двумя пальцами (pinch) или колесиком<br>
+        ✨ Нажмите <strong>«AR»</strong> в центре экрана, чтобы разместить модель в реальном мире (если устройство поддерживает дополненную реальность).
+    </div>
+
     <script>
         const viewer = document.getElementById('reactor-viewer');
+        const arBtn = document.getElementById('arButton');
+
+        // Убедимся, что модель загружена
         viewer.addEventListener('load', () => {
-            console.log('Модель загружена успешно');
-            // При необходимости можно добавить автоматическую центровку
-            viewer.cameraTarget = 'auto';
+            console.log('Модель загружена');
+            // Небольшая задержка для стабилизации
+            setTimeout(() => {
+                // Центрируем камеру на модель
+                viewer.cameraTarget = 'auto';
+            }, 500);
         });
+
+        // Обработчик ошибки загрузки
         viewer.addEventListener('error', (err) => {
             console.error('Ошибка загрузки модели:', err);
-            const info = document.querySelector('.controls-info');
-            if (info) info.innerHTML += '<br><span style="color: #ff8888;">❌ Не удалось загрузить модель. Проверьте файл model.glb и доступ к нему.</span>';
+            const info = document.querySelector('.info');
+            if (info) info.innerHTML += '<br><span style="color: #ff8888;">❌ Не удалось загрузить модель. Проверьте файл model.glb.</span>';
+        });
+
+        // Запуск AR по клику на кастомную кнопку
+        arBtn.addEventListener('click', async () => {
+            try {
+                // Проверяем, доступен ли AR в model-viewer
+                if (viewer.canActivateAR) {
+                    await viewer.activateAR();
+                } else {
+                    // Если AR не поддерживается, показываем сообщение
+                    alert('Дополненная реальность не поддерживается вашим устройством или браузером. Вы можете продолжать вращать и масштабировать модель в 3D-режиме.');
+                }
+            } catch (error) {
+                console.error('Ошибка активации AR:', error);
+                alert('Не удалось запустить AR. Убедитесь, что на устройстве установлены сервисы AR (Google Play Services for AR для Android, или iOS 12+ для iPhone).');
+            }
         });
     </script>
 </body>
