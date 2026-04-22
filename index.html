@@ -3,31 +3,122 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>AR модель</title>
+    <title>AR модель - быстрый запуск</title>
+    <!-- Импорт библиотеки model-viewer -->
     <script type="importmap">
-        { "imports": { "@google/model-viewer": "https://unpkg.com/@google/model-viewer@latest/dist/model-viewer.min.js" } }
+        {
+            "imports": {
+                "@google/model-viewer": "https://unpkg.com/@google/model-viewer@latest/dist/model-viewer.min.js"
+            }
+        }
     </script>
     <script type="module">import '@google/model-viewer';</script>
     <style>
-        model-viewer { 
-            width: 100%; 
-            height: 100vh; 
+        /* Стили для модели */
+        model-viewer {
+            width: 100%;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        /* --- Стили для нашей новой кнопки AR --- */
+        /* Контейнер для кнопки: поверх модели и по центру */
+        .ar-button-container {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            z-index: 100; /* Чтобы кнопка была поверх всего */
+            pointer-events: none; /* Чтобы клик проходил сквозь контейнер */
+        }
+        /* Сама кнопка */
+        .custom-ar-button {
+            pointer-events: auto; /* Чтобы кнопка была кликабельной */
+            background-color: #007aff;
+            border: none;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease;
+            font-family: sans-serif;
+        }
+        .custom-ar-button:active {
+            transform: scale(0.97);
+        }
+        /* Скрываем стандартную кнопку model-viewer */
+        model-viewer::part(default-ar-button) {
+            display: none;
+        }
+        /* Индикация загрузки (по желанию) */
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 200;
         }
     </style>
 </head>
 <body>
-    <!-- Основные изменения: -->
-    <!-- 1. Добавлен атрибут ios-src, указывающий на USDZ-модель для iOS. 
-        2. Изменён порядок ar-modes: quick-look теперь на первом месте для iOS. 
-        3. Добавлен атрибут ar-scale, чтобы модель была видимого размера. -->
+    <!-- 3D-модель -->
     <model-viewer 
+        id="ar-model"
         src="model01.glb" 
         ios-src="model01.usdz" 
         ar 
         ar-modes="quick-look scene-viewer webxr" 
         ar-scale="auto"
         camera-controls 
-        auto-rotate>
+        auto-rotate
+        rotation="0 0 0"
+        style="width: 100%; height: 100vh;">
     </model-viewer>
+
+    <!-- Контейнер с нашей кнопкой -->
+    <div class="ar-button-container">
+        <button id="my-ar-button" class="custom-ar-button">🚀 Смотреть в AR</button>
+    </div>
+    <div id="loading-message" class="loading">Запуск AR...</div>
+
+    <script type="module">
+        // Находим наш элемент модели и кнопку
+        const modelViewer = document.getElementById('ar-model');
+        const arButton = document.getElementById('my-ar-button');
+        const loadingDiv = document.getElementById('loading-message');
+
+        // Функция для запуска AR
+        const activateAR = () => {
+            // Показываем сообщение о запуске (особенно полезно для iOS)
+            loadingDiv.style.display = 'block';
+            
+            // Пытаемся запустить AR
+            // Важно: modelViewer.activateAR() должна вызываться прямо внутри обработчика клика
+            modelViewer.activateAR();
+            
+            // Скрываем сообщение через секунду, так как для iOS Quick Look
+            // это не имеет значения, а для Android может помочь.
+            setTimeout(() => {
+                loadingDiv.style.display = 'none';
+            }, 1000);
+        };
+
+        // Назначаем обработчик клика на нашу кнопку
+        arButton.addEventListener('click', activateAR);
+
+        // Небольшая проверка: если модель ещё не загружена, можно добавить проверку,
+        // но в большинстве случаев activateAR сработает и так.
+        console.log('Страница загружена. Нажмите кнопку для запуска AR.');
+    </script>
 </body>
 </html>
